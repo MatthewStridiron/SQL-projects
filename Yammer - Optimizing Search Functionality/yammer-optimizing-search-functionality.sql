@@ -74,9 +74,11 @@ GROUP BY 1
 SELECT
     DATE_TRUNC('week', sub.occurred_at) AS week,
     COUNT (CASE WHEN sub.event_name = 'search_run' THEN 1 END) AS searches_ran,
-    COUNT (CASE WHEN sub.event_name IN ('search_click_result_1', 'search_click_result_2', 'search_click_result_3') THEN 1 ELSE NULL END) AS top_3_seletected,
+    COUNT (CASE WHEN sub.event_name IN ('search_click_result_1', 'search_click_result_2', 'search_click_result_3') 
+    AND sub.next_search_time < sub.occurred_at + INTERVAL '5 minutes' THEN 1 ELSE NULL END) AS top_3_seletected,
     COUNT (CASE WHEN sub.event_name IN ('search_click_result_4', 'search_click_result_5', 'search_click_result_6', 
-    'search_click_result_7', 'search_click_result_8', 'search_click_result_9', 'search_click_result_10') THEN 1 ELSE NULL END) AS remaining_7_selected
+    'search_click_result_7', 'search_click_result_8', 'search_click_result_9', 'search_click_result_10') 
+    AND sub.next_search_time < sub.occurred_at + INTERVAL '5 minutes' THEN 1 ELSE NULL END) AS remaining_7_selected
 FROM (
   SELECT 
     user_id,
@@ -87,7 +89,6 @@ FROM (
   WHERE event_name = 'search_run' OR event_name ilike 'search_click_result_%'
 ) sub
 GROUP BY 1
-
 
 
 
